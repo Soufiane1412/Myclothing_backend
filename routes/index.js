@@ -6,17 +6,21 @@ var router = express.Router();
 
 
 
-
-
 router.get('/Products', async (req,res) => {
-  const query = req.query;
-  try {
-    if (!query.trim()) {
+  const queryParams = req.query;
+    if (Object.keys(queryParams).length===0) {
       res.status(400).json({errror:'A query is needed to proceed with the request'})
     }
+  try {
+    const queryString = Object.entries(queryParams)
+    .map(([key, value])=> `${key}=${value}`)
+    .join('&');
 
-    const request = await fetch(`https://api.barcodelookup.com/v3/products?title=${params}&manufacturer=${params}&key=${process.env.API_KEY}`);
-    const data = await response.json({results: request.products})
+    const response = await fetch(`https://api.barcodelookup.com/v3/products?${queryString}&key=${process.env.API_KEY}`);
+    const data = await response.json()
+
+    console.log(response.json())
+
     const results = data.map(item => ({
       title: item.title,
       brand:item.brand,
