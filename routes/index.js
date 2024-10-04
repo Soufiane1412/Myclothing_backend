@@ -22,18 +22,25 @@ router.get('/Products', async (req,res) => {
     console.log('constructed query string', queryString)
 
     const response = await fetch(`https://api.barcodelookup.com/v3/products?${queryString}&key=${process.env.API_KEY}`);
-    const data = await response.json()
 
-    console.log('API response', response.status)
+    if (!response.ok) {
+      console.log('API response not OK:', response.status)
+      return res.status(500).json({error: 'error when fetching data'})
+    }
+    const data = res.json();
+    console.log('API raw data', response)
 
-    const results = data.map(item => ({
-      title: item.title,
+    if (!data.products || data.products.length===0) {
+    return res.status(404).json({error: 'No products found'})
+    }
+
+    const result = data.products.map(item => ({
+      title:item.title,
       brand:item.brand,
       description:item.description,
       image:item.image,
-    }))
-
-    res.json({results});
+    }));
+    return res.json(result) 
 
   } catch (error) {
     console.error('We experienced an issue with /Products endpoint',error)
