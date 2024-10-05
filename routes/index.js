@@ -5,38 +5,47 @@ var router = express.Router();
 /* GET home page. */
 
 
-const http = require('https');
 
-const options = {
-	method: 'GET',
-	hostname: 'asos2.p.rapidapi.com',
-	port: null,
-	path: `/products/v2/list?store=US&offset=0&categoryId=4209&sort=freshness&q=${queryString}&limit=48&lang=en-US`,
-	headers: {
-		'x-rapidapi-key': `${process.env.RapidApi_KEY}`,
-		'x-rapidapi-host': `${process.env.Rapid_HOST}`
-	}
-};
+
 router.get('/Products', async (req,res)=> {
+
+  
   const queryString = req.query;
+  const url = `https://asos2.p.rapidapi.com/products/v2/list?store=US&offset=0&categoryId=4209&sort=freshness&q=${queryString}&limit=48&lang=en-US`
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': `${process.env.RapidApi_KEY}`,
+      'x-rapidapi-host': `${process.env.Rapid_HOST}`
+    }
+  }
 
- 
+  try{
+    const response = await fetch(url, options);
+    console.log(response);
 
-http.request(options, function (res) {
-	const chunks = [];
-
-	res.on('data', function (chunk) {
-		chunks.push(chunk);
-	});
-
-	res.on('end', function () {
-		const body = Buffer.concat(chunks);
-		console.log(body.toString());
-	});
-});
-
-req.end();
-
+    if (!express.response.ok) {
+      res.status(500).json({error: 'error whilst fetching the data', status: response.status})
+    }
+    const results = await response.json();
+    console.log(results)
+    
+    if (!results.products || results.products.length===0) {
+      res.status(404).json({error: 'error no products were found try again'})
+    }
+    const filteredResponse = results.products.map(item=> ({
+      name:item.name,
+      price:item.price.current.text,
+      colour:item.colour,
+      brand:item.brandName,
+      image:item.imageUrl,
+    }))
+    console.log(filteredResponse)
+    res.json(filteredResponse)
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({error: 'server error', details: error.message})
+  }
 })
 
 
