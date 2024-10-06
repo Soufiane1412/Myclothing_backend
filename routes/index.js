@@ -10,8 +10,8 @@ var router = express.Router();
 router.get('/Products', async (req,res)=> {
 
   
-  const queryString = req.query;
-  const url = `https://asos2.p.rapidapi.com/products/v2/list?store=US&offset=0&categoryId=4209&sort=freshness&q=${queryString}&limit=48&lang=en-US`
+  const queryString = req.query.q;
+  const url = `https://asos2.p.rapidapi.com/products/v2/list?store=US&offset=0&categoryId=4209&sort=freshness&q=${encodeURIComponent(queryString)}&limit=48&lang=en-US`
   const options = {
     method: 'GET',
     headers: {
@@ -22,16 +22,18 @@ router.get('/Products', async (req,res)=> {
 
   try{
     const response = await fetch(url, options);
-    console.log(response);
+    console.log('response status:', response.status);
+    const rawResponse = await response.text();
+    console.log('raw response:', rawResponse);
 
     if (!express.response.ok) {
-      res.status(500).json({error: 'error whilst fetching the data', status: response.status})
+      return res.status(500).json({error: 'error whilst fetching the data', status: response.status})
     }
     const results = await response.json();
-    console.log(results)
+    console.log('Response Json():', results)
     
     if (!results.products || results.products.length===0) {
-      res.status(404).json({error: 'error no products were found try again'})
+      res.status(404).json({error: 'error no products were found, try again'})
     }
     const filteredResponse = results.products.map(item=> ({
       name:item.name,
@@ -40,8 +42,8 @@ router.get('/Products', async (req,res)=> {
       brand:item.brandName,
       image:item.imageUrl,
     }))
-    console.log(filteredResponse)
-    res.json(filteredResponse)
+    
+    console.log('Filtered Response',filteredResponse)
   } catch (error) {
     console.error('Error', error);
     res.status(500).json({error: 'server error', details: error.message})
