@@ -8,6 +8,11 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+const PORT = process.env.PORT || 4000
+
+app.listen(PORT, ()=> {
+    console.log(`Server running on PORT ${PORT}`);
+})
 var cors = require('cors');
 app.use(cors());
 

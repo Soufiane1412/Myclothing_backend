@@ -6,6 +6,7 @@ var router = express.Router();
 
 
 router.get('/Products', async (req,res)=> {
+  console.log(`Request received with query: ${req.query.q}`)
 
   
   const queryString = req.query.q;
@@ -20,9 +21,6 @@ router.get('/Products', async (req,res)=> {
 
   try{
     const response = await fetch(url, options);
-    console.log('response status:', response.status);
-    const rawResponse = await response.text();
-    console.log('raw response:', rawResponse);
 
     if (!response.ok) {
       return res.status(500).json({error: 'error whilst fetching the data', status: response.status})
