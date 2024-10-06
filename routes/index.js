@@ -5,8 +5,6 @@ var router = express.Router();
 /* GET home page. */
 
 
-
-
 router.get('/Products', async (req,res)=> {
 
   
@@ -26,7 +24,7 @@ router.get('/Products', async (req,res)=> {
     const rawResponse = await response.text();
     console.log('raw response:', rawResponse);
 
-    if (!express.response.ok) {
+    if (!response.ok) {
       return res.status(500).json({error: 'error whilst fetching the data', status: response.status})
     }
     const results = await response.json();
