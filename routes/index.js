@@ -25,7 +25,7 @@ router.get('/Products', async (req,res)=> {
     if (!response.ok) {
       return res.status(500).json({error: 'error whilst fetching the data', status: response.status})
     }
-    const results = await response.json();
+    const results = await response.json()
     console.log('Parsed results', results)
     
     if (!results.products || results.products.length===0) {
@@ -39,7 +39,7 @@ router.get('/Products', async (req,res)=> {
       image:item.imageUrl,
     }))
 
-    res.status(200).json(filteredResponse)
+    res.status(200).json('Filtered Response Object', filteredResponse)
     console.log('Response successfully sent and closed');
   } catch (error) {
     console.error('Error', error);
