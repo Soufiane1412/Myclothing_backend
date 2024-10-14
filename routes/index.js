@@ -37,7 +37,9 @@ router.get('/Products', async (req,res)=> {
       colour:item.colour,
       brand:item.brandName,
       image:item.imageUrl,
+      description:item.description
     }))
+    
 
     res.status(200).json('Filtered Response Object', filteredResponse)
     console.log('Response successfully sent and closed');
