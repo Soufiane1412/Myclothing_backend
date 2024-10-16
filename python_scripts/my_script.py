@@ -2,15 +2,12 @@ import requests
 from bs4 import BeautifulSoup
 
 
-url='http://books.toscrape.com/'
+url='https://www.zalando.fr/chaussures-femme/?camp=fr_mss_premiumdesigner_fs_aw24/'
 response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
-titles = soup.find_all('h3')
+images = soup.find_all('img')
 
-for title in titles:
-    a_tag = title.find('a')
-    if a_tag:
-        bookText = a_tag.get('title')
-        url = a_tag.get('href')
-        print(f"bookText: {title}, url:{url}")
+for image in images:
+    img = image.get('src')
+    print(f"Image:{img}")
