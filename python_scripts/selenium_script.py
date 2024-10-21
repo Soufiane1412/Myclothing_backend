@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/scrape')
 def scrape_images():
     driver = webdriver.Firefox()
-    driver.get('https://eu.bape.com/')
+    driver.get('https://www.gucci.com/us/en/ca/men/shoes-for-men/loafers-for-men-c-men-shoes-moccasins-and-loafers')
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, 'html.parser')
     images = [img.get('src') for img in soup.find_all('img')]
