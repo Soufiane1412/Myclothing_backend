@@ -1,3 +1,4 @@
+const { HttpStatusCode } = require('axios');
 var express = require('express');
 var router = express.Router();
 
@@ -49,7 +50,14 @@ router.get('/Products', async (req,res)=> {
   }
 })
 
+const request = require('supertest')
+const app = reqire('../app.js')
 
+describe('GET, /products', ()=> {
+  it('should return 200 status and JSON data', async ()=> {
+    const res = await request(app).get
+  })
+})
 
 
 
