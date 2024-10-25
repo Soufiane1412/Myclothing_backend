@@ -16,11 +16,11 @@ def product_list(request):
     serializer = ProductSerializer(product, many=True)
     return Response(serializer.data)
 
-def scrape_images():
+def scrape_images(request):
     driver = webdriver.Firefox()
-    driver.get('https://www.gucci.com/us/en/ca/men/shoes-for-men/loafers-for-men-c-men-shoes-moccasins-and-loafers')
+    driver.get('https://www.zalando.fr/mode-homme/')
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, 'html.parser')
     images =[img.get('src') for img in soup.find_all('img')]
     driver.quit()
-    return JsonResponse(images)
+    return JsonResponse(images, safe=False)
