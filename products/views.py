@@ -10,18 +10,17 @@ from django.http import JsonResponse
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
 
 @api_view(['GET'])
 def product_list(request):
     product = Product.objects.all()
     serializer = ProductSerializer(product, many=True)
-    return Response(serializer.data)<
+    return Response(serializer.data)
 
 def scrape_images(request): 
     driver = webdriver.Firefox()
