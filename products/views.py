@@ -26,7 +26,6 @@ def product_list(request):
     return Response(serializer.data)
 
 @csrf_exempt
-@cors_allow_all
 def scrape_images(request): 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service)
