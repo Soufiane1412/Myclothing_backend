@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
 
 # Create your views here.
 
@@ -16,18 +19,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-@api_view(['GET'])
+
 def product_list(request):
     product = Product.objects.all()
     serializer = ProductSerializer(product, many=True)
     return Response(serializer.data)
 
+@csrf_exempt
+@cors_allow_all
 def scrape_images(request): 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service)
     try:
         print("Starting scraping process...")
-        driver.get('https://www.ralphlauren.fr/')
+        driver.get('https://fr.fursac.com/fr/c-selection-homme-fursac.html')
         print("page loaded successfully")
 
         # wait for the page to load
@@ -60,6 +65,8 @@ def scrape_images(request):
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
         products_images = []
+
+
         for img_tag in soup.find_all('img'):
             if img_tag.get('src'):
                 products_images.append({
