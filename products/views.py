@@ -54,6 +54,8 @@ def scrape_images(request):
             except Exception as e:
                 print(f"Cookie button not found: {str(e)}")
 
+
+
         # Rest of the scraping logic
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
