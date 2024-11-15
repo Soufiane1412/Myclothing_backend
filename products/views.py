@@ -31,7 +31,7 @@ def scrape_images(request):
     driver = webdriver.Firefox(service=service)
     try:
         print("Starting scraping process...")
-        driver.get('https://fr.fursac.com/fr/c-selection-homme-fursac.html')
+        driver.get('https://www.shopstyle.com/browse/dresses')
         print("page loaded successfully")
 
         # wait for the page to load
@@ -57,23 +57,65 @@ def scrape_images(request):
                 print("Found and clicked cookie button with second selector")
             except Exception as e:
                 print(f"Cookie button not found: {str(e)}")
+    except:
 
 
 
         # Rest of the scraping logic
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
-        products_images = []
+        products_data = []
 
+        product_cards = soup.find_all('div', class_='products-list__item products-list__cell ng-star-inserted')
 
-        for img_tag in soup.find_all('img'):
-            if img_tag.get('src'):
-                products_images.append({
-                    'src': img_tag['src'],
-                    'alt': img_tag('alt', '')
+        for product in product_cards:
+            try:
+                # Extract image URL
+                img_tag = product.find('img', class_='product-cell__image product-cell__image--has-alternate')
+                img_url = img_tag.get('src') if img_tag else ''
+
+                # Extract product name
+                name_element = product.find('span', attrs={'data-test':'product-cell__product-name'})
+                if not name_element:
+                    name_element = product.find('span', attrs={'_ngcontent-app-c330351314': ''})
+                    name = name_element.text.strip() if name_element else ''
+                
+
+                # Extract brand tag
+                brand_element = product.find('span', class_="ss-t-text-ellipsis ss-w-full")
+                if not brand_element:
+                    brand_element = product.find('span', attrs={"_ngcontent-app-c3303513314":""})
+                    brand = brand_element.text.strip() if brand_element else 'unknown'
+
+                # Extract element price
+                element_price = product.find('span', class_='product-cell__price ss-red ng-star-inserted')
+                if not element_price:
+                    element_price = product.find('span', attrs={'data-test':'product-cell__price'})
+                    price = element_price.text.strip() if element_price else 'FREE 🫰🏽'
+
+                # Debug prints
+                print(f"Found name: {name}")
+                print(f"Found brand: {brand}")
+
+                products_data.append({
+                    'img_url': img_url,
+                    'name': name,
+                    'brand': brand,
+                    'price': price
                 })
-        return JsonResponse({'images': products_images})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-    finally:
-        driver.quit()
+            except Exception as e:
+                print(f"Error processing product: {str(e)}")
+                continue
+
+
+    def print_element_details(element):
+        print("Tag:", element.name)
+        print("Attributes:", element.attrs)
+        print("Text content:", element.text.strip())
+
+    # use in your code 
+    for product in product_cards:
+        name_element = product.find('span', attrs={'data-test': 'product-cell___product-name'})
+        if name_element:
+            print_element_details(name_element)
+
