@@ -1,3 +1,4 @@
+import time
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -43,6 +44,16 @@ def scrape_images(request):
         EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
         print(f"Page title: {driver.title}")
+        
+
+        # Wait for dynamic content to load
+        try:
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'product-cell__image-wrapper ss-row ss-relative ng-star-inserted'))
+            )
+            time.sleep(5)
+        except Exception as e:
+            print(f"Timeout waiting for porduct {e} to load")
 
         # Get page_source after initial load
         page_source = driver.page_source
@@ -79,25 +90,20 @@ def scrape_images(request):
                 # Find name with error handling
                 name = None
                 name_element = product.find('span', attrs='product-cell__product-name')
-                if not name_element:
-                    name_element = product.find('span', recursive=True)
-                    name = name_element.text.strip() if name_element else 'No name found'
+                name = name_element.text.strip() if name_element else 'No name found'
                 
                 # Find brand with error handling
 
                 brand = None
-                brand_name = product.find('meta', attrs="product-cell__label ss-block ss-t-text-ellipsis ss-t-capitalize ss-t-b-3 ss-black")
-                if not brand_name:
-                    brand_name = product.find('span', recursive=True)
-                    brand = brand_name.text.strip() if brand_name else 'No brand name found'
+                brand_name = product.find('div', class_= "ss-flex product-cell__brand-retailer")
+                brand = brand_name.text.strip() if brand_name else 'No brand name found'
+
 
                 # Find price with error handling
 
                 price = None
-                price_element = product.find('span', class_='product-cell__price ss-red ng-star-inserted')
-                if not price_element:
-                    price_element = product.find('span', recursive=True)
-                    price = price_element.text.strip() if price_element else 'No price found'
+                price_element = product.find('span', class_='product-cell__price')
+                price = price_element.text.strip() if price_element else 'No price found'
 
                 if img_url or name: # Only add product if we found some data
                     product_cards = {
