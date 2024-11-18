@@ -45,40 +45,51 @@ def scrape_images(request):
         ).click()
 
         # wait for the page to load
-        WebDriverWait(driver, 30).until(
+        WebDriverWait(driver, 50).until(
         EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
         print(f"Page title: {driver.title}")
 
 
         # Progressive scroll and wait for content
-        last_height = driver.execute_script("return document.body.scrollHeight")
-        products_loaded = 0
-        max_scroll_attempts = 10
-        for scroll in range(max_scroll_attempts):
-            print(f"\nScroll attempt {scroll + 1}/{max_scroll_attempts}")
+        # last_height = driver.execute_script("return document.body.scrollHeight")
+        # products_loaded = 0
+        # max_scroll_attempts = 10
+        # for scroll in range(max_scroll_attempts):
+        #     print(f"\nScroll attempt {scroll + 1}/{max_scroll_attempts}")
 
-            # Scroll down
-            driver.execute_script()
- 
+        #     # Scroll down
+        #     driver.execute_script("window.scrollTo(0, document.body)")
+        #     time.sleep(3) # Wait for scroll to complete
+            
+            # # Wait for new images to load
+            # try:
+            #     WebDriverWait(driver, 10).until(
+            #         lambda driver: len(driver.find_elements(By.CLASS_NAME, "product-cell__image")) > products_loaded
+            #     )
+            # except Exception as e:
+            #     print(f"No new products loaded on scroll {scroll + 1}: {e}")
+            # # Check if we've reached the bottom
+            # new_height = driver.execute_script("return document.body.scrollHeight")
+            # products_loaded = len(driver.find_element(By.CLASS_NAME, "product-cell__image"))
+            # print(f"Products found after scroll: {products_loaded}")
 
-        try:
-            WebDriverWait(driver, 25).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'product-cell__image-wrapper ss-row ss-relative ng-star-inserted'))
-            )
+            # if new_height == last_height:
+            #     print("Reached bottom of page or no new content")
+            #     break
+            # last_height == new_height
 
-        except Exception as e:
-            print(f"Timeout waiting for porduct {e} to load")
+        # Final wait for images to load
+        print("Waiting for final images to load...")
+        time.sleep(10)
 
-        # Get page_source after initial load
+        # Get final page_source  
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, 'html.parser')
 
         selector = 'product-cell ss-t-center ss-bg-white product-cell--border'
-        print(f"using selector '{selector}'")
-
         product_cards = soup.find_all('div', class_=selector)
-        print(f"Found {len(product_cards)} products")
+        print(f"\nFound {len(product_cards)} total products")
 
         # Early return if no products
         if not product_cards:
@@ -95,52 +106,40 @@ def scrape_images(request):
             try:
                 print(f"\nProcessing new product {index}/{len(product_cards)}")    
 
-                # Find image with error handling
-                img_url = None
-                img_tag = product.find('img')
-                if img_tag and img_tag.get('src'):
-                    img_url = img_tag.get('src')
-                    
-                    # Skip loading GIFs and validate URL
-                    if 'loading-tris.gif' in img_url or not img_url.startswith('http'):
-                        print(f"Skipping invalid image URL: {img_url}")
-                        continue
-                print(f"Found valid image url: {img_url[:50]}... ")
+                # Extract img URL
 
+                img_element = product.select_one('img.product-cell__image')
+                if not img_element or not img_element.get('src'):
+                    print("No valid image found")
+                    continue
+                img_url = img_element['src']
+                if 'loading-tris.gif' in img_url or not img_url.startswith('http'):
+                    print(f'Skipping invalid URL: {img_url}')
+                    continue
+                print(f"Found valid image URL: {img_url[:50]}...")
+                
                 # Find name with error handling
-                name = None
-                name_selectors = [
-                    {'attrs': {'data-test': 'product-cell__product-name'}},
-                    {'class_': 'product-name'},
-                    {'class_': 'product-cell__product-name'}
-                ]
-                for selector in name_selectors:
-                    if 'attrs' in selector:
-                        name_element = product.find('span', attrs=name_selectors['attrs'])
-                    else:
-                        name_element = product.find('span', class_=name_selectors['class_'])
-                        if name_element:
-                            name = name_element.text.strip()
-                        break
-
-                if not name:
-                    name_element = product.find('span', recursive=True)
-                    name = name_element.text.strip() if name_element else 'No name found'
+                name = "No name found"
+                name_element = product.select_one('span[data-test="product-cell__product-name"]')
+                if name_element:
+                    name = name_element.text.strip()
+                    print(f"Found name: {name}")
                 
                 # Find brand with error handling
-
-                brand = None
-                brand_name = product.find('div', class_= "ss-flex product-cell__brand-retailer")
-                brand = brand_name.text.strip() if brand_name else 'No brand name found'
-
+                brand = "No brand found"
+                brand_element = product.select_one('div.product-cell__brand-retailer')
+                if brand_element:
+                    brand = brand_element.text.strip()
+                    print(f"Found brand: {brand}")
 
                 # Find price with error handling
+                price = "No price found"
+                price_element = product.select_one('span.product-cell__price')
+                if price_element:
+                    price = price_element.text.strip()
+                    print(f"Found price : {price}")
 
-                price = None
-                price_element = product.find('span', class_='product-cell__price')
-                price = price_element.text.strip() if price_element else 'No price found'
-
-                if img_url  or name: # Only add product if we found some data
+                if img_url or name: # Only add product if we found some data
                     product_cards = {
                         'img_url': img_url or 'No image available',
                         'name': name or 'No name available',
