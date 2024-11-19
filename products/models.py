@@ -3,8 +3,8 @@ from django.db import models
 # Create your models here.
 
 class Product(models.Model):
-    image_url = models.URLField(max_length=200)
-    name = models.CharField(max_length=100)
+    image_url = models.URLField(max_length=500)
+    name = models.CharField(max_length=200)
     brand = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
