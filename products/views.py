@@ -34,10 +34,15 @@ def product_list(request):
 def scrape_images(request): 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service)
-    products_data = []
+
+    women_dresses = []
+    women_handbags = []
+    men_jackets = []
 
     try:
-        print("Starting scraping process...")
+        # FIRST SCRAPING WOMEN'S DRESS
+
+        print("Starting scraping process one...")
         driver.get('https://www.shopstyle.com/browse/dresses')
         print("page loaded successfully")
 
@@ -53,7 +58,7 @@ def scrape_images(request):
         
         # Improved scrolling for images to load
         scroll_attempts = 0
-        max_attempts = 3
+        max_attempts = 5
 
         while scroll_attempts < max_attempts:
             # scroll down 
@@ -77,41 +82,198 @@ def scrape_images(request):
 
         # Use JS to get fully loaded products
         products = driver.execute_script("""
-        return Array.from(document.querySelectorAll('.product-cell')).map(product => {
-            const img = product.querySelector('img.product-cell__image');
-            const name = product.querySelector('[data-test="product-cell__product-name"]');
-            const brand = product.querySelector('.product-cell__brand-retailer');
-            const price = product.querySelector('.product-cell__price');
-                                         
-        return {
-         img_url: img ? img.src : null,
-         name: name ? name.textContent.trim() : null,
-         brand: brand ? brand.textContent.trim() : null,
-         price: price ? price.textContent.trim() : null                                 
-        }
-    }).filter(product => 
-            product.img_url &&
-            product.img_url.includes('shopstyle-cdn.com')
-        );
-    """)
+            return Array.from(document.querySelectorAll('.product-cell')).map(product => {
+                const img = product.querySelector('img.product-cell__image');
+                const name = product.querySelector('[data-test="product-cell__product-name"]');
+                const brand = product.querySelector('.product-cell__brand-retailer');
+                const price = product.querySelector('.product-cell__price');
+                                            
+                return {
+                img_url: img ? img.src : null,
+                name: name ? name.textContent.trim() : null,
+                brand: brand ? brand.textContent.trim() : null,
+                price: price ? price.textContent.trim() : null                                 
+                }
+            }).filter(product => 
+                    product.img_url &&
+                    product.img_url.includes('shopstyle-cdn.com')
+                );
+        """)
         # Process the result
         for product in products:
             if product['img_url']: #Only add products with valid URLs
-                products_data.append({
+                women_dresses.append({
                     'img_url': product['img_url'],
                     'name': product['name'] or 'No name available',
                     'brand': product['brand'] or 'No brand available',
                     'price': product['price'] or 'No price available'
                 })
                 print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
-            
+        
+
+
+        # SECOND SCRAPING WOMEN'S BAGS
+
+        print("Starting scraping process two...")
+        driver.get('https://www.shopstyle.com/browse/handbags')
+        print("page loaded successfully")
+
+        # Handle cookie consent popup
+        try:
+
+            WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Continue shopping on the current site.')]"))
+            ).click()
+            print("Cookie consent accepted")
+        except TimeoutException:
+            print("No cookie consent popup found, continuing...")
+        
+        # Improved scrolling for images to load
+        scroll_attempts = 0
+        max_attempts = 5
+
+        while scroll_attempts < max_attempts:
+            # scroll down 
+
+            driver.execute_script('window.scrollBy(0, 800);') # scroll by fixed amount
+            time.sleep(2) # Wait for content to load
+
+            try:
+                # Wait for new products to load
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "img.product-cell__image[src*='shopstyle-cdn.com']"))
+                )
+                print(f"Scroll attempt {scroll_attempts + 1}: Products loaded")
+            except TimeoutException:
+                print(f"Scroll attempt {scroll_attempts + 1}: No new products loaded")
+
+            scroll_attempts += 1
+
+        # Final wait for all images  
+        time.sleep(3)
+
+        # Use JS to get fully loaded products
+        products = driver.execute_script("""
+            return Array.from(document.querySelectorAll('.product-cell')).map(product => {
+                const img = product.querySelector('img.product-cell__image');
+                const name = product.querySelector('[data-test="product-cell__product-name"]');
+                const brand = product.querySelector('.product-cell__brand-retailer');
+                const price = product.querySelector('.product-cell__price');
+                                            
+                return {
+                img_url: img ? img.src : null,
+                name: name ? name.textContent.trim() : null,
+                brand: brand ? brand.textContent.trim() : null,
+                price: price ? price.textContent.trim() : null                                 
+                }
+            }).filter(product => 
+                    product.img_url &&
+                    product.img_url.includes('shopstyle-cdn.com')
+                );
+        """)
+
+        # Process the result
+        for product in products:
+            if product['img_url']: #Only add products with valid URLs
+                women_handbags.append({
+                    'img_url': product['img_url'],
+                    'name': product['name'] or 'No name available',
+                    'brand': product['brand'] or 'No brand available',
+                    'price': product['price'] or 'No price available'
+                })
+                print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
+
+        
+        # THIRD SCRAPING MEN'S JACKETS
+
+        print("Starting scraping process three...")
+        driver.get('https://www.shopstyle.com/browse/mens-light-jackets')
+        print("page loaded successfully")
+
+        # Handle cookie consent popup
+        try:
+
+            WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Continue shopping on the current site.')]"))
+            ).click()
+            print("Cookie consent accepted")
+        except TimeoutException:
+            print("No cookie consent popup found, continuing...")
+        
+        # Improved scrolling for images to load
+        scroll_attempts = 0
+        max_attempts = 5
+
+        while scroll_attempts < max_attempts:
+            # scroll down 
+
+            driver.execute_script('window.scrollBy(0, 800);') # scroll by fixed amount
+            time.sleep(2) # Wait for content to load
+
+            try:
+                # Wait for new products to load
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "img.product-cell__image[src*='shopstyle-cdn.com']"))
+                )
+                print(f"Scroll attempt {scroll_attempts + 1}: Products loaded")
+            except TimeoutException:
+                print(f"Scroll attempt {scroll_attempts + 1}: No new products loaded")
+
+            scroll_attempts += 1
+
+        # Final wait for all images  
+        time.sleep(3)
+
+        # Use JS to get fully loaded products
+        products = driver.execute_script("""
+            return Array.from(document.querySelectorAll('.product-cell')).map(product => {
+                const img = product.querySelector('img.product-cell__image');
+                const name = product.querySelector('[data-test="product-cell__product-name"]');
+                const brand = product.querySelector('.product-cell__brand-retailer');
+                const price = product.querySelector('.product-cell__price');
+                                            
+                return {
+                img_url: img ? img.src : null,
+                name: name ? name.textContent.trim() : null,
+                brand: brand ? brand.textContent.trim() : null,
+                price: price ? price.textContent.trim() : null                                 
+                }
+            }).filter(product => 
+                    product.img_url &&
+                    product.img_url.includes('shopstyle-cdn.com')
+                );
+        """)
+
+        # Process the result
+        for product in products:
+            if product['img_url']: #Only add products with valid URLs
+                men_jackets.append({
+                    'img_url': product['img_url'],
+                    'name': product['name'] or 'No name available',
+                    'brand': product['brand'] or 'No brand available',
+                    'price': product['price'] or 'No price available'
+                })
+                print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
+
+
+        combined_data = {
+            'women dresses': women_dresses,
+            'women handbags': women_handbags,
+            'men jackets': men_jackets
+        }
+
         # Return response AFTER processing all products
-        print(f"\nSuccesfully processed {len(products_data)} products")
+        print(f"\nSuccesfully processed {len(combined_data)} products")
         return Response({
             'status': 'success',
-            'products': products_data,
-            'count': len(products_data)
-            }, status=status.HTTP_200_OK)  # Use appropriate status code
+            'count': len(combined_data),
+            'products':combined_data
+            }, status=status.HTTP_200_OK)
+    
+            # 'status': 'success',
+            # 'products': products_two,
+            # 'count': len(products_two)
+            # }, status=status.HTTP_200_OK)  # Use appropriate status code
             
     except Exception as e:
         print(f"Error during main scraping: {str(e)}")
