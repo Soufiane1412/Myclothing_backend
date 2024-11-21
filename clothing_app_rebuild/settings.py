@@ -44,7 +44,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'products',
     'corsheaders',
+    'channels',
+    'notifications',
 ]
+
+ASGI_APPLICATION = 'notifications'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

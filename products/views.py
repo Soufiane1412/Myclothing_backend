@@ -172,12 +172,12 @@ def scrape_images(request):
                 const mainImage = product.querySelector('img.product-cell__image');
                 const altImage = product.querySelector('img.product-cell__image--alternate');
                                          
-                        const imageUrls = []
+                        const imgUrls = []
                             if (mainImage && mainImage.src.includes('shopstyle-cdn.com')) {
-                            imageUrls.push(mainImage.src)             
+                            imgUrls.push(mainImage.src)             
                             };
                             if (altImage && altImage.src.includes('shopstyle-cdn.com')) {
-                                imageUrls.push(altImage.src)
+                                imgUrls.push(altImage.src)
                             };
                 const name = product.querySelector('[data-test="product-cell__product-name"]');
                 const brand = product.querySelector('.product-cell__brand-retailer');
@@ -271,7 +271,7 @@ def scrape_images(request):
                 const price = product.querySelector('.product-cell__price');
                                             
                 return {
-                img_url: imgUrls,
+                img_urls: imgUrls,
                 name: name ? name.textContent.trim() : null,
                 brand: brand ? brand.textContent.trim() : null,
                 price: price ? price.textContent.trim() : null                                 
@@ -411,6 +411,3 @@ def scrape_images(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # Use appropriate status code
     finally:
         driver.quit()
-
-
-
