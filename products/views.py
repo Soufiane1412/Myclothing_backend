@@ -13,7 +13,6 @@ from .models import Product
 from .serializers import ProductSerializer
 
 # Scraping imports
-
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.service import Service
@@ -22,6 +21,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
+# websocket imports
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 @api_view(['GET'])
 def product_list(request):
@@ -411,3 +413,17 @@ def scrape_images(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # Use appropriate status code
     finally:
         driver.quit()
+
+    
+def my_view(request):
+    # Some business logic here
+
+    # Send notification
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send) (
+        'notifications', # Group name
+        {
+            'type': 'send_notification'; # Maps to the consumer's method
+            'message': 'Hello there, it is my first websocket message from Django 🙋🏻‍♂️📮'
+        }
+    )
