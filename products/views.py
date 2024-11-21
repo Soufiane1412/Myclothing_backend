@@ -423,7 +423,7 @@ def my_view(request):
     async_to_sync(channel_layer.group_send) (
         'notifications', # Group name
         {
-            'type': 'send_notification'; # Maps to the consumer's method
+            'type': 'send_notification', # Maps to the consumer's method
             'message': 'Hello there, it is my first websocket message from Django 🙋🏻‍♂️📮'
         }
     )
