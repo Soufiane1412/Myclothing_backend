@@ -38,12 +38,13 @@ def scrape_images(request):
     women_dresses = []
     women_handbags = []
     men_jackets = []
+    men_shoes = []
 
     try:
         # FIRST SCRAPING WOMEN'S DRESS
 
         print("Starting scraping process one...")
-        driver.get('https://www.shopstyle.com/browse/dresses')
+        driver.get('https://www.shopstyle.com/browse/dresses?sort=Popular')
         print("page loaded successfully")
 
         # Handle cookie consent popup
@@ -83,39 +84,52 @@ def scrape_images(request):
         # Use JS to get fully loaded products
         products = driver.execute_script("""
             return Array.from(document.querySelectorAll('.product-cell')).map(product => {
-                const img = product.querySelector('img.product-cell__image');
+                const mainImage = product.querySelector('img.product-cell__image');
+                const altImage = product.querySelector('img.product-cell__image--alternate');
+                
+                const imgUrls = [];
+                        if (mainImage && mainImage.src.includes('shopstyle-cdn.com')) {
+                                imgUrls.push(mainImage.src)
+                            };
+                        if (altImage && altImage.src.includes('shopstyle-cdn.com')) {
+                                imgUrls.push(altImage.src)
+                            };                                        
                 const name = product.querySelector('[data-test="product-cell__product-name"]');
                 const brand = product.querySelector('.product-cell__brand-retailer');
                 const price = product.querySelector('.product-cell__price');
                                             
                 return {
-                img_url: img ? img.src : null,
+                img_urls: imgUrls,
                 name: name ? name.textContent.trim() : null,
                 brand: brand ? brand.textContent.trim() : null,
                 price: price ? price.textContent.trim() : null                                 
                 }
             }).filter(product => 
-                    product.img_url &&
-                    product.img_url.includes('shopstyle-cdn.com')
+                    product.img_urls &&
+                    product.img_urls.length > 0 &&
+                    product.name &&
+                    product.brand &&
+                    product.price
                 );
         """)
         # Process the result
         for product in products:
-            if product['img_url']: #Only add products with valid URLs
+            if product['img_urls']: #Only add products with valid URLs
                 women_dresses.append({
-                    'img_url': product['img_url'],
+                    'img_urls': product['img_urls'],
                     'name': product['name'] or 'No name available',
                     'brand': product['brand'] or 'No brand available',
                     'price': product['price'] or 'No price available'
                 })
                 print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
+                print(f"Images: {product['img_urls']}") # print img_urls for debugging
         
 
 
         # SECOND SCRAPING WOMEN'S BAGS
 
         print("Starting scraping process two...")
-        driver.get('https://www.shopstyle.com/browse/handbags')
+        driver.get('https://www.shopstyle.com/browse/handbags?sort=Popular')
         print("page loaded successfully")
 
         # Handle cookie consent popup
@@ -155,39 +169,53 @@ def scrape_images(request):
         # Use JS to get fully loaded products
         products = driver.execute_script("""
             return Array.from(document.querySelectorAll('.product-cell')).map(product => {
-                const img = product.querySelector('img.product-cell__image');
+                const mainImage = product.querySelector('img.product-cell__image');
+                const altImage = product.querySelector('img.product-cell__image--alternate');
+                                         
+                        const imageUrls = []
+                            if (mainImage && mainImage.src.includes('shopstyle-cdn.com')) {
+                            imageUrls.push(mainImage.src)             
+                            };
+                            if (altImage && altImage.src.includes('shopstyle-cdn.com')) {
+                                imageUrls.push(altImage.src)
+                            };
                 const name = product.querySelector('[data-test="product-cell__product-name"]');
                 const brand = product.querySelector('.product-cell__brand-retailer');
                 const price = product.querySelector('.product-cell__price');
                                             
                 return {
-                img_url: img ? img.src : null,
+                img_urls: imgUrls,
                 name: name ? name.textContent.trim() : null,
                 brand: brand ? brand.textContent.trim() : null,
                 price: price ? price.textContent.trim() : null                                 
                 }
             }).filter(product => 
-                    product.img_url &&
-                    product.img_url.includes('shopstyle-cdn.com')
+                    product.img_urls &&
+                    product.img_urls.length > 0 &&
+                    product.name &&
+                    product.brand &&
+                    product.price 
                 );
         """)
 
         # Process the result
         for product in products:
-            if product['img_url']: #Only add products with valid URLs
+            if product['img_urls']: #Only add products with valid URLs
                 women_handbags.append({
-                    'img_url': product['img_url'],
+                    'img_urls': product['img_urls'],
                     'name': product['name'] or 'No name available',
                     'brand': product['brand'] or 'No brand available',
                     'price': product['price'] or 'No price available'
                 })
                 print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
+                print(f"Added images_urls: {product['img_urls']}")
+
 
         
         # THIRD SCRAPING MEN'S JACKETS
 
         print("Starting scraping process three...")
-        driver.get('https://www.shopstyle.com/browse/mens-light-jackets')
+        driver.get('https://www.shopstyle.com/browse/mens-light-jackets?sort=Popular')
         print("page loaded successfully")
 
         # Handle cookie consent popup
@@ -227,39 +255,142 @@ def scrape_images(request):
         # Use JS to get fully loaded products
         products = driver.execute_script("""
             return Array.from(document.querySelectorAll('.product-cell')).map(product => {
-                const img = product.querySelector('img.product-cell__image');
+                const mainImage = product.querySelector('img.product-cell__image');
+                const altImage = product.querySelector('img.product-cell__image--alternate');
+                                         
+                        const imgUrls = [];
+                            if (mainImage && mainImage.src.includes('shopstyle-cdn.com')) {
+                            imgUrls.push(mainImage.src)    
+                                };
+                            if (altImage && altImage.src.includes('shopstyle-cdn.com')) {
+                                imgUrls.push(altImage.src)        
+                                };
+                                         
                 const name = product.querySelector('[data-test="product-cell__product-name"]');
                 const brand = product.querySelector('.product-cell__brand-retailer');
                 const price = product.querySelector('.product-cell__price');
                                             
                 return {
-                img_url: img ? img.src : null,
+                img_url: imgUrls,
                 name: name ? name.textContent.trim() : null,
                 brand: brand ? brand.textContent.trim() : null,
                 price: price ? price.textContent.trim() : null                                 
                 }
             }).filter(product => 
-                    product.img_url &&
-                    product.img_url.includes('shopstyle-cdn.com')
+                    product.img_urls &&
+                    product.img_urls.length > 0 &&
+                    product.name &&
+                    product.brand &&
+                    product.price                        
                 );
         """)
 
         # Process the result
         for product in products:
-            if product['img_url']: #Only add products with valid URLs
+            if product['img_urls']: #Only add products with valid URLs
                 men_jackets.append({
-                    'img_url': product['img_url'],
+                    'img_urls': product['img_urls'],
                     'name': product['name'] or 'No name available',
                     'brand': product['brand'] or 'No brand available',
                     'price': product['price'] or 'No price available'
                 })
                 print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
+                print(f"Found images: {product['img_urls']}")
+
+
+        # FOURTH scraping process
+
+        print("Starting scraping process four...")
+        driver.get('https://www.shopstyle.com/browse/mens-shoes?sort=Popular')
+        print("page loaded successfully")
+
+        # Handle cookie consent popup
+        try:
+
+            WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Continue shopping on the current site.')]"))
+            ).click()
+            print("Cookie consent accepted")
+        except TimeoutException:
+            print("No cookie consent popup found, continuing...")
+        
+        # Improved scrolling for images to load
+        scroll_attempts = 0
+        max_attempts = 5
+
+        while scroll_attempts < max_attempts:
+            # scroll down 
+
+            driver.execute_script('window.scrollBy(0, 800);') # scroll by fixed amount
+            time.sleep(2) # Wait for content to load
+
+            try:
+                # Wait for new products to load
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, "img.product-cell__image[src*='shopstyle-cdn.com']"))
+                )
+                print(f"Scroll attempt {scroll_attempts + 1}: Products loaded")
+            except TimeoutException:
+                print(f"Scroll attempt {scroll_attempts + 1}: No new products loaded")
+
+            scroll_attempts += 1
+
+        # Final wait for all images  
+        time.sleep(3)
+
+        # Use JS to get fully loaded products
+        products = driver.execute_script("""
+            return Array.from(document.querySelectorAll('.product-cell')).map(product => {
+                const mainImage = product.querySelector('img.product-cell__image');
+                const altImage = product.querySelector('img.product-cell__image--alternate');
+                            
+                    const imgUrls = [];
+                            if (mainImage && mainImage.src.includes('shopstyle-cdn.com')) {
+                                imgUrls.push(mainImage.src)
+                                };
+                            if (altImage && altImage.src.includes('shopstyle-cdn.com')) {
+                                imgUrls.push(altImage.src)
+                                };
+                    
+                const name = product.querySelector('[data-test="product-cell__product-name"]');
+                const brand = product.querySelector('.product-cell__brand-retailer');
+                const price = product.querySelector('.product-cell__price');
+                                            
+                return {
+                img_urls: imgUrls,
+                name: name ? name.textContent.trim() : null,
+                brand: brand ? brand.textContent.trim() : null,
+                price: price ? price.textContent.trim() : null                                 
+                }
+            }).filter(product => 
+                    product.img_urls &&
+                    product.img_urls.length > 0 &&
+                    product.name &&
+                    product.brand &&
+                    product.price 
+                );
+        """)
+
+        # Process the result
+        for product in products:
+            if product['img_urls']: #Only add products with valid URLs
+                men_shoes.append({
+                    'img_urls': product['img_urls'],
+                    'name': product['name'] or 'No name available',
+                    'brand': product['brand'] or 'No brand available',
+                    'price': product['price'] or 'No price available'
+                })
+                print(f"Added product: {product['name']} - {product['brand']} - {product['price']}")
+                print(f"Found images: {product['img_urls']}")
+
+
 
 
         combined_data = {
             'women dresses': women_dresses,
             'women handbags': women_handbags,
-            'men jackets': men_jackets
+            'men jackets': men_jackets,
+            'men shoes': men_shoes
         }
 
         # Return response AFTER processing all products
@@ -269,11 +400,6 @@ def scrape_images(request):
             'count': len(combined_data),
             'products':combined_data
             }, status=status.HTTP_200_OK)
-    
-            # 'status': 'success',
-            # 'products': products_two,
-            # 'count': len(products_two)
-            # }, status=status.HTTP_200_OK)  # Use appropriate status code
             
     except Exception as e:
         print(f"Error during main scraping: {str(e)}")
