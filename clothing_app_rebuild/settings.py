@@ -42,13 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'channels',
     'products',
     'corsheaders',
-    'channels',
-    'notifications',
 ]
 
-ASGI_APPLICATION = 'notifications'
+ASGI_APPLICATION = 'clothing_app_rebuild.asgi.application'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
