@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import Token
 from .models import Product
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -6,11 +8,11 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['name', 'brand', 'price', 'image_url']
 
-
-class MyTokenObtainPairSerializer(TokenObtainPariSerializer):
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username
+        token['username'] = user.username 
 
         return token
+    
