@@ -25,6 +25,11 @@ from selenium.common.exceptions import TimeoutException
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+# JWT imports
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokanObtainPairView
+
+
 @api_view(['GET'])
 def product_list(request):
     product = Product.objects.all()
@@ -416,6 +421,9 @@ def scrape_images(request):
 
     
 def my_view(request):
+
+
+
     # Some business logic here
 
     # Send notification
@@ -427,3 +435,4 @@ def my_view(request):
             'message': 'Hello there, it is my first websocket message from Django 🙋🏻‍♂️📮'
         }
     )
+
