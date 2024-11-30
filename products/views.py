@@ -29,12 +29,21 @@ from asgiref.sync import async_to_sync
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokanObtainPairView
 
+# Authentication import 
+from django.contrib.auth.models import User
+
+
+
+################################ Product ################################
 
 @api_view(['GET'])
 def product_list(request):
     product = Product.objects.all()
     serializer = ProductSerializer(product, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)  # Use status codes from DRF
+
+
+################################ Scraping logic ################################
 
 @csrf_exempt
 @api_view(['GET'])
@@ -391,8 +400,6 @@ def scrape_images(request):
                 print(f"Found images: {product['img_urls']}")
 
 
-
-
         combined_data = {
             'women dresses': women_dresses,
             'women handbags': women_handbags,
@@ -419,12 +426,10 @@ def scrape_images(request):
     finally:
         driver.quit()
 
+
+################################ websocket ################################
     
 def my_view(request):
-
-
-
-    # Some business logic here
 
     # Send notification
     channel_layer = get_channel_layer()
@@ -436,3 +441,16 @@ def my_view(request):
         }
     )
 
+
+@api_view(['POST'])
+def register(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    # other user data (e.g., email)
+    try:
+        user = User.objects.create_user(username=username, password=password)
+        #... optionally, you can add other data to the user object 
+        return Response({'message': 'User registered usccessfully'}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

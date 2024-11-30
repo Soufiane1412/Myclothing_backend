@@ -10,5 +10,6 @@ urlpatterns =[
     path('scrape/', scrape_images, name='scrape-images'),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/register/', name='register'),
 
 ]
