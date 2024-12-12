@@ -2,8 +2,10 @@ import time
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.contrib.auth.models import User
 
 # DRF imports
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response  # We'll use this instead of JsonResponse
 from rest_framework import status  # Add this for HTTP status codes
@@ -26,8 +28,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 # JWT imports
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokanObtainPairView
+from .serializers import MyTokenObtainPairView, MyTokenObtainPairSerializer
 
 # Authentication import 
 from django.contrib.auth.models import User

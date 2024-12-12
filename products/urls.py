@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import product_list, scrape_images
+from .views import product_list, scrape_images, register
 
 # Token JWT import 
 from .views import MyTokenObtainPairView
@@ -10,6 +10,6 @@ urlpatterns =[
     path('scrape/', scrape_images, name='scrape-images'),
     path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/register/', name='register'),
+    path('api/register/', register,  name='register'),
 
 ]
