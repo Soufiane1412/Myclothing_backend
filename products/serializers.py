@@ -30,6 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     # Additional field not in the model
     password = serializers.CharField(write_only=True)
+    password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
         model = User # specifies which model to serialize

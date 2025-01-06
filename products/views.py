@@ -8,11 +8,14 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response  # We'll use this instead of JsonResponse
-from rest_framework import status  # Add this for HTTP status codes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+
+
 
 # Models and serializers
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, UserSerializer
 
 # Scraping imports
 from selenium import webdriver
@@ -38,6 +41,7 @@ from django.contrib.auth.models import User
 ################################ Product ################################
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def product_list(request):
     product = Product.objects.all()
     serializer = ProductSerializer(product, many=True)
@@ -47,6 +51,7 @@ def product_list(request):
 ################################ Scraping logic ################################
 
 @csrf_exempt
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def scrape_images(request): 
     service = Service(GeckoDriverManager().install())
@@ -445,13 +450,9 @@ def my_view(request):
 
 @api_view(['POST'])
 def register(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
 
-    # other user data (e.g., email)
-    try:
-        user = User.objects.create_user(username=username, password=password)
-        #... optionally, you can add other data to the user object 
-        return Response({'message': 'User registered usccessfully'}, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
