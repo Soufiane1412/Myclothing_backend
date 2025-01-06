@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import Token
 from .models import Product
 from django.contrib.auth.models import User
 
 class ProductSerializer(serializers.ModelSerializer):
-    class meta:
+    class Meta:
         model = Product
         fields = ['name', 'brand', 'price', 'image_url']
 
@@ -55,7 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
         validated_data: Dictionary of field values that passed validation
         """
         # Never store raw passwords! Django handles hashing
-        user = user.objects.create_user(
+        user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''), # Email optional
             password=validated_data['password']
