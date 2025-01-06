@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'products',
     'corsheaders',
     'rest_framework_simplejwt',
+    'debug_toolbar',
 ]
 
 ASGI_APPLICATION = 'clothing_app_rebuild.asgi.application'
