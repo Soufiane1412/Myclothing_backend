@@ -50,9 +50,9 @@ def product_list(request):
 
 ################################ Scraping logic ################################
 
-@csrf_exempt
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
 def scrape_images(request): 
     service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service)
