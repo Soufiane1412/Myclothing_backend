@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-i1wgusnckq9*!6bq%sv62+(p3&lcaw6htfhs7-zq!_8nxgxfen
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.112']
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
@@ -154,6 +154,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Add your React Native development server
     "http://127.0.0.1:3000",
     "http://127.0.0.1:8000",
+    "http://192.168.1.112:8081",  # For Expo on device
+    "exp://192.168.1.112:8081",  # For Expo on device
     "exp://localhost:19000",  # For Expo development
     "http://localhost:19006",  # For web browser testing
 ]
