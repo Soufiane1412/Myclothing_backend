@@ -14,6 +14,10 @@ from pathlib import Path
 import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
+
+## load env variables:
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,16 +27,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i1wgusnckq9*!6bq%sv62+(p3&lcaw6htfhs7-zq!_8nxgxfen'
+SECRET_KEY = os.getenv('django-insecure-i1wgusnckq9*!6bq%sv62+(p3&lcaw6htfhs7-zq!_8nxgxfen')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.112']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1, 192.168.1.112').split(',')
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
+# SECURITY SETTINGS:
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
 
 # Application definition
 
